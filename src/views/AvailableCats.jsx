@@ -13,11 +13,16 @@ export default function AvailableCats() {
   const [cats, setCats] = useState([]);
   const [searchText, setSearchText] = useState('');
   const [selectedBreed, setSelectedBreed] = useState('All');
+  const [appliedFilters, setAppliedFilters] = useState({ searchText: '', selectedBreed: 'All' });
 
   useEffect(() => {
     const fetchCatImages = async () => {
       try {
-        const responses = await Promise.all(availableCats.map(() => fetch('https://api.thecatapi.com/v1/images/search').then((res) => res.json())));
+        const responses = await Promise.all(
+          availableCats.map(() =>
+            fetch('https://api.thecatapi.com/v1/images/search').then((res) => res.json())
+          )
+        );
         const catsWithImages = availableCats.map((cat, index) => ({
           ...cat,
           image: responses[index][0].url,
@@ -31,20 +36,37 @@ export default function AvailableCats() {
     fetchCatImages();
   }, []);
 
+  // Filtered cats Function based on applied filters
   const filteredCats = cats.filter((cat) => {
-    const matchesBreed = selectedBreed === 'All' || cat.breed === selectedBreed;
-    const matchesName = cat.name.toLowerCase().includes(searchText.toLowerCase());
+    const matchesBreed =
+      appliedFilters.selectedBreed === 'All' || cat.breed === appliedFilters.selectedBreed;
+    const matchesName = cat.name.toLowerCase().includes(appliedFilters.searchText.toLowerCase());
     return matchesBreed && matchesName;
   });
 
+  // Extracting breeds for the dropdown from array
   const breeds = ['All', ...new Set(availableCats.map((cat) => cat.breed))];
 
-  return (
-    <section className="text-center mt-4" style={{ padding: '1em', backgroundColor: '#f9f9f9', borderRadius: '8px' }}>
-      <h2 style={{ fontSize: '2rem', color: '#333' }}>Available Cats</h2>
-      <p style={{ color: '#555', fontSize: '1rem', marginBottom: '1.5em' }}>Meet our adorable cats looking for their forever home!</p>
+  const applyFilters = () => {
+    setAppliedFilters({ searchText, selectedBreed });
+  };
 
-      <div className="filters mb-4" style={{ display: 'flex', justifyContent: 'center', gap: '1em' }}>
+  return (
+    <section
+      className="text-center mt-4"
+      style={{ padding: '1em', backgroundColor: '#f9f9f9', borderRadius: '8px' }}
+    >
+      <h2 style={{ fontSize: '2rem', color: '#333' }}>Available Cats</h2>
+      <p style={{ color: '#555', fontSize: '1rem', marginBottom: '1.5em' }}>
+        Meet our adorable cats looking for their forever home!
+      </p>
+
+      {/* Filter  Div */}
+      <div
+        className="filters mb-4"
+        style={{ display: 'flex', justifyContent: 'center', gap: '1em' }}
+      >
+        {/* Search filter with names */}
         <input
           type="text"
           placeholder="Search by name"
@@ -58,6 +80,8 @@ export default function AvailableCats() {
             width: '200px',
           }}
         />
+
+        {/* Dropdown Menu For Breed Selection */}
         <select
           value={selectedBreed}
           onChange={(e) => setSelectedBreed(e.target.value)}
@@ -75,8 +99,25 @@ export default function AvailableCats() {
             </option>
           ))}
         </select>
+
+        {/* Search Button */}
+        <button
+          onClick={applyFilters}
+          style={{
+            padding: '0.5em 1em',
+            borderRadius: '4px',
+            border: 'none',
+            backgroundColor: '#007bff',
+            color: '#fff',
+            fontSize: '1rem',
+            cursor: 'pointer',
+          }}
+        >
+          Search
+        </button>
       </div>
 
+      {/* Cat card list */}
       <div className="mt-4 row g-4" id="cats-container">
         {filteredCats.length > 0 ? (
           filteredCats.map((cat, i) => (
@@ -141,7 +182,9 @@ export default function AvailableCats() {
             </div>
           ))
         ) : (
-          <p style={{ color: '#888', fontSize: '1rem', marginTop: '2em' }}>No cats found matching your filters.</p>
+          <p style={{ color: '#888', fontSize: '1rem', marginTop: '2em' }}>
+            No cats found matching your filters.
+          </p>
         )}
       </div>
     </section>
