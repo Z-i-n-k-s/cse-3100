@@ -41,7 +41,14 @@ export default function Home() {
         <div className="mt-2 row g-4" id="cats-container">
           {cats.map((cat, i) => (
             <div key={i} className="col-md-4">
-              <div className="cat-card" style={{ borderRadius: '8px', overflow: 'hidden' }}>
+              <div
+                className="cat-card"
+                style={{
+                  borderRadius: '8px',
+                  overflow: 'hidden',
+                  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.4)',
+                }}
+              >
                 <img
                   src={cat.image}
                   alt={cat.name}
